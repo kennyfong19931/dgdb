@@ -120,9 +120,9 @@ class EnemyAbility extends Model
                 break;
             case 7:
                 if($this->param_02 != 100)
-                    $text .= ($this->param_00-1).'屬性以下, NS攻擊力-'.(100-$this->param_02).'%';
+                    $text .= ($this->param_00).'屬性或以下, NS攻擊力-'.(100-$this->param_02).'%';
                 if($this->param_01 != 100)
-                    $text .= ($this->param_00-1).'屬性以上, NS攻擊力+'.($this->param_01-100).'%';
+                    $text .= ($this->param_00).'屬性或以上, NS攻擊力+'.($this->param_01-100).'%';
                 break;
             case 8:
                 if($this->param_02 != 100)

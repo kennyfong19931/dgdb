@@ -8,7 +8,7 @@
 @section('title'){{ $unit->name }} - Divine Gate 資料庫@stop
 
 @section('social_netowrk')<meta property="og:title" content="{{ $unit->name }}"/><meta property="og:description" content="{{ $unit->draw_id }} - {{ $unit->name }}
-{{ $unit->detail }}"/><meta property="og:locale" content="zh_HK"><meta property="og:url" content="{{ URL::asset('/') }}"/><meta property="og:site_name" content="Divine Gate 資料庫" /><meta property="fb:app_id" content="1140845152610532" /><meta property="og:image" content="{{ URL::asset('/img/favicon.png') }}" /><meta property="og:image" content="<?=$imageUtil->getUnitLarge($unit->draw_id)?>" /><meta property="og:image" content="<?=$imageUtil->getIconFlicker($function->getTriId($unit->draw_id))?>" />@stop
+{{ $unit->detail }}"/><meta property="og:locale" content="zh_HK"><meta property="og:url" content="{{ URL::asset('/') }}"/><meta property="og:site_name" content="Divine Gate 資料庫" /><meta property="fb:app_id" content="1140845152610532" /><meta property="og:image" content="{{ URL::asset('/img/favicon.png') }}" /><meta property="og:image" content="<?=$imageUtil->getUnitLarge($unit->draw_id)?>" /><meta property="og:image" content="<?=$imageUtil->getIconLink($function->getTriId($unit->draw_id))?>" />@stop
 
 @section('style')#charaBG{background:url({{URL::asset('img/chara_bg.jpg')}});background-repeat:no-repeat;background-size:cover}input{width:initial!important;margin:0!important}#translation{position:relative}#translateButton{position:absolute;top:0;right:0;height:25px;line-height:25px}dl{-webkit-margin-before:0em;-webkit-margin-after:0em}dd,dt{display:block;float:left}dt{font-weight:700;clear:left;margin-right:5px}dd{-webkit-margin-start:0}@stop
 

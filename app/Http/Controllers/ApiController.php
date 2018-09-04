@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Util\FunctionUtil;
 use App\Util\ImageUtil;
+use App\Util\CacheUtil;
 use App\Models\ASkill;
 use App\Models\LSkill;
 use App\Models\NSkill;
@@ -16,329 +17,391 @@ use Carbon\Carbon;
 
 class ApiController extends Controller
 {
-    public function unitlist(){
-        $imageUtil = new ImageUtil;
-        $function = new FunctionUtil;
-        $key = 'blade_unitlist';
-        if (Cache::has($key)){
-            $unitlist = Cache::get($key);
-        } else {
-            $unitlist = DB::table('unit')->select('fix_id','name','draw_id','element','kind','sub_kind','rare','series','link_enable')->where('fix_id','!=','0')->orderBy('draw_id')->get();
-            foreach ($unitlist as $unit) {
-                $unit->image = $imageUtil->getIconFlicker($function->getTriId($unit->draw_id));
-            }
-            // cache
-            $expiresAt = new Carbon('next friday');
-            Cache::put($key, $unitlist, $expiresAt);
+    private $cacheUtil;
+
+    public function __construct(){
+        $this->cacheUtil = new CacheUtil();
+    }
+
+    public function area($id){
+        $output = [];
+        $data = $this->cacheUtil->area($id);
+        $output['area_cate_name'] = $data['area_cate_name'];
+        $output['area'] = $data['area']->area_name;
+        $output['area_res_map'] = $data['area']->res_map;
+        $output['area_res_map_icon'] = $data['area']->res_map_icon;
+        $output['area_res_icon_key'] = $data['area']->res_icon_key;
+        $output['area_res_icon_box'] = $data['area']->res_icon_box;
+        $output['area_url'] = $data['area']->area_url;
+        $output['area_element_fire'] = $data['area']->cost1*2;
+        $output['area_element_water'] = $data['area']->cost2*2;
+        $output['area_element_wind'] = $data['area']->cost3*2;
+        $output['area_element_light'] = $data['area']->cost4*2;
+        $output['area_element_dark'] = $data['area']->cost5*2;
+        $output['area_element_naught'] = $data['area']->cost0*2;
+        $output['area_element_life'] = $data['area']->cost6*2;
+        
+        foreach($data['quests'] as $quest){
+            $obj = [];
+            $obj['quest_id'] = $quest->fix_id;
+            $obj['quest_name'] = $q->quest_name;
+            $obj['quest_stamina'] = $quest->quest_stamina;
+            $obj['quest_ticket'] = $quest->quest_ticket;
+            $obj['quest_key'] = $quest->quest_key;
+            $obj['floor_count'] = $quest->floor_count;
+            $output['quest'][] = $obj;
         }
-        return response()->json($unitlist);
+
+        return response()->json($output);
+    }
+    
+    public function quest($id){
+        $statusAilmentRegex = '/alt="(.*)"\/>(.*)/m';
+
+        $output = [];
+        $data = $this->cacheUtil->quest($id);
+        // basic info
+        $output['area_cate_name'] = $data['area_cate_name'];
+        $output['area_id'] = $data['area_id'];
+        $output['area_name'] = $data['area_name'];
+        $output['quest_name'] = $data['quest']->quest_name;
+
+        // quest_requirement
+        $output['quest_requirement']['battle_chain'] = $data['quest']->battle_chain == 2 ? true : false;
+        $output['quest_requirement']['enable_continue'] = $data['quest']->enable_continue == 1 ? false : true;
+        $output['quest_requirement']['elem_fire'] =  $data['quest_requirement_obj']->elem_fire == 2 ? true : false;
+        $output['quest_requirement']['elem_water'] =  $data['quest_requirement_obj']->elem_water == 2 ? true : false;
+        $output['quest_requirement']['elem_wind'] =  $data['quest_requirement_obj']->elem_wind == 2 ? true : false;
+        $output['quest_requirement']['elem_light'] =  $data['quest_requirement_obj']->elem_light == 2 ? true : false;
+        $output['quest_requirement']['elem_dark'] =  $data['quest_requirement_obj']->elem_dark == 2 ? true : false;
+        $output['quest_requirement']['elem_naught'] =  $data['quest_requirement_obj']->elem_naught == 2 ? true : false;
+        $output['quest_requirement']['num_elem'] =  $data['quest_requirement_obj']->num_elem == 1 ? true : false;
+        $output['quest_requirement']['kind_human'] =  $data['quest_requirement_obj']->kind_human == 2 ? true : false;
+        $output['quest_requirement']['kind_fairy'] =  $data['quest_requirement_obj']->kind_fairy == 2 ? true : false;
+        $output['quest_requirement']['kind_demon'] =  $data['quest_requirement_obj']->kind_demon == 2 ? true : false;
+        $output['quest_requirement']['kind_dragon'] =  $data['quest_requirement_obj']->kind_dragon == 2 ? true : false;
+        $output['quest_requirement']['kind_machine'] =  $data['quest_requirement_obj']->kind_machine == 2 ? true : false;
+        $output['quest_requirement']['kind_beast'] =  $data['quest_requirement_obj']->kind_beast == 2 ? true : false;
+        $output['quest_requirement']['kind_god'] =  $data['quest_requirement_obj']->kind_god == 2 ? true : false;
+        $output['quest_requirement']['kind_egg'] =  $data['quest_requirement_obj']->kind_egg == 2 ? true : false;
+        $output['quest_requirement']['num_kind'] =  $data['quest_requirement_obj']->num_kind == 1 ? true : false;
+        $output['quest_requirement']['num_unit'] =  $data['quest_requirement_obj']->num_unit;
+        $output['quest_requirement']['much_name'] =  $data['quest_requirement_obj']->much_name;
+        $output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
+        $output['quest_requirement']['limit_cost_total'] =  $data['quest_requirement_obj']->limit_cost_total;
+        $output['quest_requirement']['limit_unit_lv'] =  $data['quest_requirement_obj']->limit_unit_lv;
+        $output['quest_requirement']['limit_unit_lv_total'] =  $data['quest_requirement_obj']->limit_unit_lv_total;
+        $output['quest_requirement']['limit_rank'] =  $data['quest_requirement_obj']->limit_rank;
+        $output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
+        for($i = 0; $i < 5; $i++){
+            if(isset($data['quest_requirement']['fix_team']['fix_unit'][$i])){
+                $output['quest_requirement']['fix_team']['fix_unit'][$i]['unit_id'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['unit']->getApiObj();
+                $output['quest_requirement']['fix_team']['fix_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['lv'];
+                $output['quest_requirement']['fix_team']['fix_unit'][$i]['lbs_lv'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['lbs_lv'];
+                $output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'];
+                $output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'];
+            }
+            if(isset($data['quest_requirement']['fix_team']['link_unit'][$i])){
+                $output['quest_requirement']['fix_team']['link_unit'][$i]['unit_id'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['unit']->getApiObj();
+                $output['quest_requirement']['fix_team']['link_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['lv'];
+                $output['quest_requirement']['fix_team']['link_unit'][$i]['lbs_lv'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['lbs_lv'];
+                $output['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'];
+                $output['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'];
+            }
+        }
+
+        // quest detail
+        $output['story'] = $data['quest']->story;
+        if(isset($data['storycn']))
+            $output['storycn'] = $data['storycn'];
+        $output['quest_stamina'] = $data['quest']->quest_stamina;
+        $output['quest_ticket'] = $data['quest']->quest_ticket;
+        $output['quest_key'] = $data['quest']->quest_key;
+        if(isset($data['area_key']))
+            $output['area_key'] = $data['area_key'];
+        $output['clear_money'] = $data['quest']->clear_money;
+        $output['clear_exp'] = $data['quest']->clear_exp;
+        $output['clear_stone'] = $data['quest']->clear_stone;
+        $output['clear_link_point'] = ($data['quest']->clear_link_point)/100;
+        $output['clear_unit'] = $data['quest']->clearUnit()->getApiObj();
+        $output['clear_unit']['lv'] = $data['quest']->clear_unit_lv;
+        if(isset($data['noData'])){
+            $output['noData'] = true;
+            $obj = [];
+            $obj['unit'] = $data['boss']->getApiObj();
+            if(isset($data['boss']['ability'])){
+                foreach($data['boss']['ability'] as $ability){
+                    $temp = [];
+                    $temp['name'] = $ability['name'];
+                    $temp['detail'] = $ability['detail'];
+                    $temp['detailcn'] = $ability->getDetailCn();
+                    $obj['ability'][] = $temp;
+                }
+            }
+            $output['boss'][] = $obj;
+        } else {
+            $output['noData'] = false;
+            foreach($data['boss'] as $unit){
+                $obj = [];
+                $obj['unit'] = $unit['unit']->getApiObj();
+                $obj['hp'] = $unit['hp'];
+                $obj['atk'] = $unit['atk'];
+                $obj['def'] = $unit['def'];
+                $obj['cd'] = $unit['cd'];
+                $obj['drop'] = $unit['drop']->getApiObj();
+                if(isset($unit['ability'])){
+                    foreach($unit['ability'] as $ability){
+                        $temp = [];
+                        $temp['name'] = $ability['name'];
+                        $temp['detail'] = $ability['detail'];
+                        $temp['detailcn'] = $ability->getDetailCn();
+                        $obj['ability'][] = $temp;
+                    }
+                }
+                if(isset($unit['act_first'])){
+                    $temp = $unit['act_first'];
+                    if(isset($temp['status_ailment'])){
+                        $tempStatusAilment = $temp['status_ailment'];
+                        $temp['status_ailment'] = [];
+                        foreach($tempStatusAilment as $statusAilment){
+                            $matches = [];
+                            preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                            if(sizeof($matches) > 0){
+                                $tempObj = [];
+                                $tempObj['icon'] = $matches[0][1];
+                                $tempObj['detail'] = $matches[0][2];
+                                $temp['status_ailment'][] = $tempObj;
+                            } else {
+                                $tempObj = [];
+                                $tempObj['detail'] = $statusAilment;
+                                $temp['status_ailment'][] = $tempObj;
+                            }
+                        }
+                    }
+                    $obj['act_first'] = $temp;
+                }
+                if(isset($unit['act_dead'])){
+                    $temp = $unit['act_dead'];
+                    if(isset($temp['status_ailment'])){
+                        $tempStatusAilment = $temp['status_ailment'];
+                        $temp['status_ailment'] = [];
+                        foreach($tempStatusAilment as $statusAilment){
+                            $matches = [];
+                            preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                            if(sizeof($matches) > 0){
+                                $tempObj = [];
+                                $tempObj['icon'] = $matches[0][1];
+                                $tempObj['detail'] = $matches[0][2];
+                                $temp['status_ailment'][] = $tempObj;
+                            } else {
+                                $tempObj = [];
+                                $tempObj['detail'] = $statusAilment;
+                                $temp['status_ailment'][] = $tempObj;
+                            }
+                        }
+                    }
+                    $obj['act_dead'] = $temp;
+                }
+                for($i = 1; $i < 9; $i++){
+                    if(isset($unit['act_table'.$i])){
+                        $temp = [];
+                        $temp['timing_type'] = $unit['act_table'.$i]['timing_type'];
+                        $temp['timing_param1'] = $unit['act_table'.$i]['timing_param1'];
+                        $temp['action_type'] = $unit['act_table'.$i]['action_type'];
+                        foreach($unit['act_table'.$i]['moves'] as $move){
+                            if(isset($move['status_ailment'])){
+                                $tempStatusAilment = $move['status_ailment'];
+                                $move['status_ailment'] = [];
+                                foreach($tempStatusAilment as $statusAilment){
+                                    $matches = [];
+                                    preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                                    if(sizeof($matches) > 0){
+                                        $tempObj = [];
+                                        $tempObj['icon'] = $matches[0][1];
+                                        $tempObj['detail'] = $matches[0][2];
+                                        $move['status_ailment'][] = $tempObj;
+                                    } else {
+                                        $tempObj = [];
+                                        $tempObj['detail'] = $statusAilment;
+                                        $move['status_ailment'][] = $tempObj;
+                                    }
+                                }
+                            }
+                            $temp['moves'][] = $move;
+                        }
+                        $obj['act_table'.$i] = $temp;
+                    }
+                }
+                $output['boss'][] = $obj;
+            }
+            foreach($data['enemy'] as $unit){
+                $obj = [];
+                $obj['unit'] = $unit['unit']->getApiObj();
+                $obj['hp'] = $unit['hp'];
+                $obj['atk'] = $unit['atk'];
+                $obj['def'] = $unit['def'];
+                $obj['cd'] = $unit['cd'];
+                $obj['drop'] = $unit['drop']->getApiObj();
+                if(isset($unit['ability'])){
+                    foreach($unit['ability'] as $ability){
+                        $temp = [];
+                        $temp['name'] = $ability['name'];
+                        $temp['detail'] = $ability['detail'];
+                        $temp['detailcn'] = $ability->getDetailCn();
+                        $obj['ability'][] = $temp;
+                    }
+                }
+                if(isset($unit['act_first'])){
+                    $temp = $unit['act_first'];
+                    if(isset($temp['status_ailment'])){
+                        $tempStatusAilment = $temp['status_ailment'];
+                        $temp['status_ailment'] = [];
+                        foreach($tempStatusAilment as $statusAilment){
+                            $matches = [];
+                            preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                            if(sizeof($matches) > 0){
+                                $tempObj = [];
+                                $tempObj['icon'] = $matches[0][1];
+                                $tempObj['detail'] = $matches[0][2];
+                                $temp['status_ailment'][] = $tempObj;
+                            } else {
+                                $tempObj = [];
+                                $tempObj['detail'] = $statusAilment;
+                                $temp['status_ailment'][] = $tempObj;
+                            }
+                        }
+                    }
+                    $obj['act_first'] = $temp;
+                }
+                if(isset($unit['act_dead'])){
+                    $temp = $unit['act_dead'];
+                    if(isset($temp['status_ailment'])){
+                        $tempStatusAilment = $temp['status_ailment'];
+                        $temp['status_ailment'] = [];
+                        foreach($tempStatusAilment as $statusAilment){
+                            $matches = [];
+                            preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                            if(sizeof($matches) > 0){
+                                $tempObj = [];
+                                $tempObj['icon'] = $matches[0][1];
+                                $tempObj['detail'] = $matches[0][2];
+                                $temp['status_ailment'][] = $tempObj;
+                            } else {
+                                $tempObj = [];
+                                $tempObj['detail'] = $statusAilment;
+                                $temp['status_ailment'][] = $tempObj;
+                            }
+                        }
+                    }
+                    $obj['act_dead'] = $temp;
+                }
+                for($i = 1; $i < 9; $i++){
+                    if(isset($unit['act_table'.$i])){
+                        $temp = [];
+                        $temp['timing_type'] = $unit['act_table'.$i]['timing_type'];
+                        $temp['timing_param1'] = $unit['act_table'.$i]['timing_param1'];
+                        $temp['action_type'] = $unit['act_table'.$i]['action_type'];
+                        foreach($unit['act_table'.$i]['moves'] as $move){
+                            if(isset($move['status_ailment'])){
+                                $tempStatusAilment = $move['status_ailment'];
+                                $move['status_ailment'] = [];
+                                foreach($tempStatusAilment as $statusAilment){
+                                    $matches = [];
+                                    preg_match_all($statusAilmentRegex, $statusAilment, $matches, PREG_SET_ORDER, 0);
+                                    if(sizeof($matches) > 0){
+                                        $tempObj = [];
+                                        $tempObj['icon'] = $matches[0][1];
+                                        $tempObj['detail'] = $matches[0][2];
+                                        $move['status_ailment'][] = $tempObj;
+                                    } else {
+                                        $tempObj = [];
+                                        $tempObj['detail'] = $statusAilment;
+                                        $move['status_ailment'][] = $tempObj;
+                                    }
+                                }
+                            }
+                            $temp['moves'][] = $move;
+                        }
+                        $obj['act_table'.$i] = $temp;
+                    }
+                }
+                $output['enemy'][] = $obj;
+            }
+            foreach($data['floors'] as $floor){
+                $obj = [];
+                for($i = 1; $i < 8; $i++){
+                    if(isset($floor[$i]['enemy'])){
+                        $tempArray = [];
+                        foreach($floor[$i]['enemy'] as $enemy){
+                            $tempArray[] = $enemy->getApiObj();
+                        }
+                        $obj[$i]['enemy'] = $tempArray;
+                    }
+                    if(isset($floor[$i]['trap'])){
+                        $tempArray = [];
+                        foreach($floor[$i]['trap'] as $trap){
+                            if($trap['trap_type'] == 0)
+                                continue;
+                            $tempObj = [];
+                            $tempObj['trap_type'] = $trap['trap_type'];
+                            $tempObj['name'] = $trap['name'];
+                            $tempObj['res_panel'] = $trap['res_panel'];
+                            $tempObj['detail'] = $trap['detail'];
+                            $tempObj['effective_type'] = $trap['effective_type'];
+                            $tempObj['effective_value'] = $trap['effective_value'];
+                            $tempArray[] = $tempObj;
+                        }
+                        $obj[$i]['trap'] = $tempArray;
+                    }
+                    if(isset($floor[$i]['money'])){
+                        $obj[$i]['money']['min'] = $floor[$i]['money']['min']['effective_value'];
+                        $obj[$i]['money']['max'] = $floor[$i]['money']['max']['effective_value'];
+                        $obj[$i]['money']['icon'] = $floor[$i]['money']['icon'];
+                    }
+                }
+                $output['floors'][] = $obj;
+            }
+        }
+
+        return response()->json($output);
+    }
+    
+    public function questlist(){
+        $output = [];
+
+        return response()->json($output);
+    }
+    
+    public function rank(){
+        $output = [];
+
+        return response()->json($output);
     }
 
     public function skill($type){
-        $imageUtil = new ImageUtil;
-        $function = new FunctionUtil;
-        $key = 'api_skill'.$type;
-        if (Cache::has($key)){
-            $data = Cache::get($key);
-        } else {
-            switch($type){
-                case 'n':
-                case 'ln':
-                    $skills = NSkill::where('fix_id','!=','0')->get();
-                    foreach($skills as $skill){
-                        $obj = new \stdClass;
-                        if($type == 'ln')
-                            $obj->units = $skill->minLinkUnits();
-                        else
-                            $obj->units = $skill->minUnits();
-                        if(sizeof($obj->units) == 0){continue;}
-                        $obj->name = $skill->name;
-                        $obj->detail = $skill->detail;
-                        $obj->detailCn = $skill->getDetailCn();
-                        foreach ($obj->units as $unit) {
-                            $unit->image = $imageUtil->getIconFlicker($function->getTriId($unit->draw_id));
-                        }
-                        if($type == 'n'){
-                            $cardDesc = "";
-                            $cards = $skill->getCard();
-                            for($i = 4; $i >= 0; $i--){
-                                if($cards[$i] == 0)
-                                    unset($cards[$i]);
-                                else
-                                    $cardDesc .= $function->getElement($cards[$i])."板 ";
-                            }
-                            $obj->card = $cards;
-                            $cardDesc .= sizeof($obj->card)."板 ";
-                            if(sizeof(array_unique($obj->card)) > 1)
-                                $cardDesc .= "雜色";
-                            else
-                                $cardDesc .= "單色";
-                            $obj->cardDesc = $cardDesc;
-                        }
-                        switch($skill->skill_type){
-                            case 1:
-                                $data['skill'][1][] = $obj;
-                                break;
-                            case 2:
-                                $data['skill'][2][] = $obj;
-                                break;
-                            case 5:
-                                $data['skill'][3][] = $obj;
-                                break;
-                        }
-                    }
-                    $data['status'] = 1;
-                    break;
-                case 'l':
-                    $skills = LSkill::where('fix_id','!=','0')->get();
-                    foreach($skills as $skill){
-                        $obj = new \stdClass;
-                        $obj->units = $skill->minUnits();
-                        if(sizeof($obj->units) == 0){continue;}
-                        $obj->name = $skill->name;
-                        $obj->detail = $skill->detail;
-                        $obj->detailCn = $skill->getDetailCn();
-                        foreach ($obj->units as $unit) {
-                            $unit->image = $imageUtil->getIconFlicker($function->getTriId($unit->draw_id));
-                        }
-                        if($skill->skill_powup_elem_status == 1 || $skill->skill_powup_kind_status == 1)
-                            $data['skill'][1][] = $obj;
-                        elseif ($skill->skill_powup_elem_status == 2 || $skill->skill_powup_kind_status == 2)
-                            $data['skill'][2][] = $obj;
-                        elseif ($skill->skill_powup_elem_status == 3 || $skill->skill_powup_kind_status == 3)
-                            $data['skill'][3][] = $obj;
-                        elseif ($skill->skill_follow_atk_active == 2 )
-                            $data['skill'][4][] = $obj;
-                        elseif ($skill->skill_decline_dmg_active == 2)
-                            $data['skill'][5][] = $obj;
-                        elseif ($skill->skill_recovery_move_active == 2 || $skill->skill_recovery_battle_active == 2)
-                            $data['skill'][6][] = $obj;
-                        elseif ($skill->skill_quick_time_active == 2)
-                            $data['skill'][7][] = $obj;
-                        elseif ($skill->skill_recovery_support_active == 2)
-                            $data['skill'][8][] = $obj;
-                        elseif ($skill->skill_recovery_atk_active == 2)
-                            $data['skill'][9][] = $obj;
-                        elseif ($skill->skill_recovery_battle_active == 2)
-                            $data['skill'][10][] = $obj;
-                        elseif ($skill->skill_hpfull_powup_active == 2 || $skill->skill_hpdown_powup_active == 2)
-                            $data['skill'][11][] = $obj;
-                        elseif ($skill->skill_mekuri_powup_active == 2)
-                            $data['skill'][12][] = $obj;
-                        elseif ($skill->skill_funbari_active == 2)
-                            $data['skill'][13][] = $obj;
-                        elseif ($skill->skill_hpfull_guard_active == 2)
-                            $data['skill'][14][] = $obj;
-                        elseif ($skill->skill_initiative_atk_active == 2)
-                            $data['skill'][15][] = $obj;
-                        elseif ($skill->skill_transform_card_active == 2)
-                            $data['skill'][16][] = $obj;
-                        elseif ($skill->skill_damageup_color_active == 2 || $skill->skill_damageup_hands_active == 2)
-                            $data['skill'][17][] = $obj;
-                        else{
-                            switch($skill->skill_type){
-                                case 2:
-                                    $data['skill'][17][] = $obj;
-                                    break;
-                                case 3:
-                                    $data['skill'][18][] = $obj;
-                                    break;
-                                case 5:
-                                    $data['skill'][19][] = $obj;
-                                    break;
-                            }
-                        }
-                    }
-                    $data['status'] = 1;
-                    break;
-                case 'a':
-                    $skills = ASkill::where('fix_id','!=','0')->get();
-                    foreach($skills as $skill){
-                        $obj = new \stdClass;
-                        $obj->units = $skill->minUnits();
-                        if(sizeof($obj->units) == 0){continue;}
-                        $obj->name = $skill->name;
-                        $obj->detail = $skill->detail;
-                        $obj->detailCn = $skill->getDetailCn();
-                        foreach ($obj->units as $unit) {
-                            $unit->image = $imageUtil->getIconFlicker($function->getTriId($unit->draw_id));
-                        }
-                        switch($skill->skill_cate){
-                            case 2:
-                                $data['skill'][1][] = $obj;
-                                break;
-                            case 4:
-                                $data['skill'][2][] = $obj;
-                                break;
-                            case 5:
-                                $data['skill'][3][] = $obj;
-                                break;
-                            case 6:
-                            case 9:
-                                $data['skill'][4][] = $obj;
-                                break;
-                            case 7:
-                                $data['skill'][5][] = $obj;
-                                break;
-                            case 8:
-                            case 11:
-                                $data['skill'][6][] = $obj;
-                                break;
-                            case 3:
-                            case 10:
-                                $data['skill'][7][] = $obj;
-                                break;
-                            case 12:
-                                $data['skill'][8][] = $obj;
-                                break;
-                            case 13:
-                                $data['skill'][9][] = $obj;
-                                break;
-                            case 14:
-                                $data['skill'][10][] = $obj;
-                                break;
-                            case 15:
-                                $data['skill'][11][] = $obj;
-                                break;
-                            case 16:
-                                $data['skill'][12][] = $obj;
-                                break;
-                            case 17:
-                            case 18:
-                            case 40:
-                            case 43:
-                                $data['skill'][13][] = $obj;
-                                break;
-                            case 19:
-                                $data['skill'][14][] = $obj;
-                                break;
-                            case 20:
-                                $data['skill'][15][] = $obj;
-                                break;
-                            case 21:
-                                $data['skill'][16][] = $obj;
-                                break;
-                            case 22:
-                            case 23:
-                            case 24:
-                            case 25:
-                            case 41:
-                                $data['skill'][17][] = $obj;
-                                break;
-                            case 28:
-                                $data['skill'][18][] = $obj;
-                                break;
-                            case 29:
-                                $data['skill'][19][] = $obj;
-                                break;
-                            case 30:
-                                $data['skill'][20][] = $obj;
-                                break;
-                            case 44:
-                                $data['skill'][21][] = $obj;
-                                break;
-                            case 45:
-                                $data['skill'][22][] = $obj;
-                                break;
-                            case 42:
-                            case 46:
-                                $data['skill'][23][] = $obj;
-                                break;
-                            case 47:
-                                $data['skill'][24][] = $obj;
-                                break;
-                            case 49:
-                                $data['skill'][25][] = $obj;
-                                break;
-                        }
-                    }
-                    $data['status'] = 1;
-                    break;
-                case 'p':
-                case 'lp':
-                    $skills = PSkill::where('fix_id','!=','0')->get();
-                    foreach($skills as $skill){
-                        $obj = new \stdClass;
-                        if($type == 'lp')
-                            $obj->units = $skill->minLinkUnits();
-                        else
-                            $obj->units = $skill->minUnits();
-                        if(sizeof($obj->units) == 0){continue;}
-                        $obj->name = $skill->name;
-                        $obj->detail = $skill->detail;
-                        $obj->detailCn = $skill->getDetailCn();
+        return response()->json($this->cacheUtil->skill($type));
+    }
+    
+    public function story(){
+        $output = [];
 
-                        foreach ($obj->units as $unit) {
-                            $unit->image = $imageUtil->getIconFlicker($function->getTriId($unit->draw_id));
-                        }
-                        if($skill->skill_trap_pass_active == 2)
-                            $data['skill'][1][] = $obj;
-                        elseif ($skill->skill_powup_kind_active == 2)
-                            $data['skill'][2][] = $obj;
-                        elseif ($skill->skill_counter_atk_active == 2)
-                            $data['skill'][3][] = $obj;
-                        elseif ($skill->skill_damage_recovery_active == 2 )
-                            $data['skill'][4][] = $obj;
-                        elseif ($skill->skill_hp_full_powup_active == 2 || $skill->skill_dying_powup_active == 2)
-                            $data['skill'][5][] = $obj;
-                        elseif ($skill->skill_backatk_pass_active == 2)
-                            $data['skill'][6][] = $obj;
-                        elseif ($skill->skill_decline_dmg_elem_active == 2 || $skill->skill_decline_dmg_kind_active == 2)
-                            $data['skill'][7][] = $obj;
-                        elseif ($skill->skill_boost_chance_active == 2)
-                            $data['skill'][8][] = $obj;
-                        else{
-                            switch($skill->skill_type){
-                                case 1:
-                                    $data['skill'][9][] = $obj;
-                                    break;
-                                case 3:
-                                    $data['skill'][10][] = $obj;
-                                    break;
-                                case 4:
-                                    $data['skill'][11][] = $obj;
-                                    break;
-                                case 5:
-                                    $data['skill'][12][] = $obj;
-                                    break;
-                                case 6:
-                                    $data['skill'][13][] = $obj;
-                                    break;
-                                case 7:
-                                    $data['skill'][14][] = $obj;
-                                    break;
-                                case 9:
-                                    $data['skill'][15][] = $obj;
-                                    break;
-                                case 10:
-                                    $data['skill'][16][] = $obj;
-                                    break;
-                                case 11:
-                                    $data['skill'][17][] = $obj;
-                                    break;
-                                case 13:
-                                    $data['skill'][18][] = $obj;
-                                    break;
-                                case 14:
-                                    $data['skill'][19][] = $obj;
-                                    break;
-                                case 15:
-                                    $data['skill'][20][] = $obj;
-                                    break;
-                            }
-                        }
-                    }
-                    $data['status'] = 1;
-                    break;
-                default:
-                    $data['status'] = 0;
-                    break;
-            }
-            $data['type'] = $type;
-            // cache
-            $expiresAt = new Carbon('next friday');
-            Cache::put($key, $data, $expiresAt);
-        }
-        return response()->json($data);
+        return response()->json($output);
+    }
+    
+    public function unit($id){
+        $output = [];
+
+        return response()->json($output);
+    }
+
+    public function unitlist(){
+        $unitlist = $this->cacheUtil->unitlist();
+        return response()->json($unitlist);
+    }
+    
+    public function voteResult(){
+        $output = [];
+
+        return response()->json($output);
     }
 }

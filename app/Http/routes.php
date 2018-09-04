@@ -23,15 +23,25 @@ Route::get('mark/{type}', 'PagesController@mark');
 Route::get('clearCache', 'PagesController@clearCache');
 Route::get('rank', 'PagesController@rank');
 Route::get('story', 'PagesController@story');
-// Route::get('test', 'PagesController@test');
-Route::post('api/unit/{id}', 'TranslateController@unit');
-Route::post('api/quest/{id}', 'TranslateController@quest');
-Route::get('api/unitlist', 'ApiController@unitlist');
+Route::get('test', 'PagesController@test');
+// Translate
+Route::post('api/translate/unit/{id}', 'TranslateController@unit');
+Route::post('api/translate/quest/{id}', 'TranslateController@quest');
+
+// API
+Route::get('api/area/{id}', 'ApiController@area');
+Route::get('api/quest/{id}', 'ApiController@quest');
+Route::get('api/questlist', 'ApiController@questlist');
+Route::get('api/rank', 'ApiController@rank');
 Route::get('api/skill/{type}', 'ApiController@skill');
+Route::get('api/story', 'ApiController@story');
+Route::get('api/unit/{id}', 'ApiController@unit');
+Route::get('api/unitlist', 'ApiController@unitlist');
+Route::get('api/voteresult', 'ApiController@voteResult');
 
 // update
 Route::get('update', function () { return view('update.index'); })->middleware('update');
-//Route::post('update/dlData', 'UpdateController@dlData')->middleware('update'); 
+//Route::post('update/dlData', 'UpdateController@dlData')->middleware('update');      // checksum error
 Route::post('update/update', 'UpdateController@update')->middleware('update');
 Route::get('update/show_asset', function () { return view('update.show_asset'); })->middleware('update');
 Route::get('update/show_gacha', function () { return view('update.show_gacha'); })->middleware('update');

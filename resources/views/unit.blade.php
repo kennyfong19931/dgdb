@@ -19,7 +19,7 @@
 <meta property="fb:app_id" content="1140845152610532" />
 <meta property="og:image" content="{{ URL::asset('/img/favicon.png') }}" />
 <meta property="og:image" content="<?=$imageUtil->getUnitLarge($unit->draw_id)?>" />
-<meta property="og:image" content="<?=$imageUtil->getIconFlicker($function->getTriId($unit->draw_id))?>" />
+<meta property="og:image" content="<?=$imageUtil->getIconLink($function->getTriId($unit->draw_id))?>" />
 @stop
 
 @section('style')

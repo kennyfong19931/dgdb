@@ -216,7 +216,7 @@ $('input.autocomplete').autocomplete2({
         {name: "Re：從零開始的異世界生活系列", value:"Re0", tag:"Re：從零開始的異世界生活"},
         {name: "Village Vanguard系列", value:"VV", tag:"Village Vanguard"},
     @foreach($unitlist as $unit)
-        {name: "{{$function->getTriId($unit->draw_id)}} - {{$unit->name}}", value: "{{$unit->draw_id}}", image: "<?=$imageUtil->getIconFlicker($function->getTriId($unit->draw_id))?>", tag: "{{$unit->name}}"},
+        {name: "{{$function->getTriId($unit->draw_id)}} - {{$unit->name}}", value: "{{$unit->draw_id}}", image: "<?=$imageUtil->getIconLink($function->getTriId($unit->draw_id))?>", tag: "{{$unit->name}}"},
     @endforeach
     ]
 });

@@ -67,7 +67,7 @@ $('ul.tabs').tabs('select_tab', 'floor1');
 $('.tooltipped').tooltip({delay: 50});
 
 function parseTranslate(){
-    $("#translation").html($("#translation").html().replace(/\[\[([0-9]+)\|([^\]]+)\]\]/g, '<a href="{{URL::asset('/')}}unit/$1">$2</a>' ));
+    $("#translation").html($("#translation").html().replace(/\[\[([0-9]+)\|([^\]]+)\]\]/g, '<a href="{{URL::asset('/')}}quest/$1">$2</a>' ));
 }
 parseTranslate();
 @stop

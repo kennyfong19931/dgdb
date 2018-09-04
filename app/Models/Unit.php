@@ -140,4 +140,11 @@ class Unit extends Model
             ['id','=',$this->draw_id],
         ])->first();
     }
+
+    public function getApiObj(){
+        $output = [];
+        $output['draw_id'] = $this->draw_id;
+        $output['name'] = $this->name;
+        return $output;
+    }
 }

@@ -768,7 +768,39 @@ class CacheUtil{
     }
     
     public function story(){
-        // TODO
+        $key = 'blade_story';
+        if (Cache::has($key)){
+            $data = Cache::get($key);
+        } else {
+            $data = [];
+            $unitlist = Unit::where('fix_id','!=','0')->orderBy('draw_id')->get();
+            foreach ($unitlist as $unit) {
+                $obj = [];
+                $obj['fix_id'] = $unit->fix_id;
+                $obj['name'] = $unit->name;
+                $obj['draw_id'] = $unit->draw_id;
+                $obj['series'] = $unit->series;
+                $obj['detail'] = $unit->detail;
+                $translate = $unit->getTranslate();
+                $obj['detailcn'] = !is_null($translate) ? $translate->text : "";
+                $obj['image'] = $this->imageUtil->getIconLink($this->function->getTriId($unit->draw_id));
+                $data['unit'][] = $obj;
+            }
+            $questlist = Quest::where('fix_id','!=','0')->orderBy('fix_id')->get();
+            foreach ($questlist as $quest) {
+                $obj = [];
+                $obj['fix_id'] = $quest->fix_id;
+                $obj['quest_name'] = $quest->quest_name;
+                $obj['story'] = $quest->story;
+                $translate = $quest->getTranslate();
+                $obj['storycn'] = !is_null($translate) ? $translate->text : "";
+                $obj['image'] = $this->imageUtil->getIconLink($this->function->getTriId($quest->boss()->draw_id));
+                $data['quest'][] = $obj;
+            }
+            // cache
+            Cache::forever($key, $data);
+        }
+        return $data;
     }
     
     public function unit($id){

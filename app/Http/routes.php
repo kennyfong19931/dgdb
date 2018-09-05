@@ -37,7 +37,7 @@ Route::get('api/skill/{type}', 'ApiController@skill');
 Route::get('api/story', 'ApiController@story');
 Route::get('api/unit/{id}', 'ApiController@unit');
 Route::get('api/unitlist', 'ApiController@unitlist');
-Route::get('api/voteresult', 'ApiController@voteResult');
+Route::get('api/voteresult/{id}', 'ApiController@voteResult');
 
 // update
 Route::get('update', function () { return view('update.index'); })->middleware('update');

@@ -94,5 +94,5 @@ class NSkill extends Model
     public function units(){ return Unit::where('skill_active0','=',$this->fix_id)->orWhere('skill_active1','=',$this->fix_id)->get(); }
     public function linkUnits(){ return Unit::where('link_skill_active','=',$this->fix_id)->get(); }
     public function minUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('skill_active0','=',$this->fix_id)->orWhere('skill_active1','=',$this->fix_id)->orderBy('draw_id')->get(); }
-    public function minLinkUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('link_skill_active','=',$this->fix_id)->orderBy('draw_id')->get(); }
+    public function minLinkUnits(){ return DB::table('unit')->select('name','draw_id')->where('link_skill_active','=',$this->fix_id)->orderBy('draw_id')->get(); }
 }

@@ -80,5 +80,5 @@ class ASkill extends Model
 
     public function getStatusAilment($num){ return $this->hasOne('App\Models\StatusAilment', 'fix_id', 'status_ailment'.$num)->first(); }
     public function units(){return $this->hasMany('App\Models\Unit', 'skill_limitbreak', 'fix_id')->get(); }
-    public function minUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('skill_limitbreak','=',$this->fix_id)->orderBy('draw_id')->get(); }
+    public function minUnits(){ return DB::table('unit')->select('name','draw_id')->where('skill_limitbreak','=',$this->fix_id)->orderBy('draw_id')->get(); }
 }

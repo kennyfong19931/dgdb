@@ -1120,7 +1120,6 @@ class FunctionUtil{
     function getUnitApiObj($unit){
         $imageUtil = new ImageUtil();
         $output = [];
-        $output['fix_id'] = $unit->fix_id;
         $output['name'] = $unit->name;
         $output['draw_id'] = $unit->draw_id;
         $output['image'] = $imageUtil->getIconLink($this->getTriId($unit->draw_id));

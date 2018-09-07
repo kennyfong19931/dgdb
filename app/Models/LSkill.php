@@ -111,5 +111,5 @@ class LSkill extends Model
     }
 
     public function units(){return $this->hasMany('App\Models\Unit', 'skill_leader', 'fix_id')->get(); }
-    public function minUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('skill_leader','=',$this->fix_id)->orderBy('draw_id')->get(); }
+    public function minUnits(){ return DB::table('unit')->select('name','draw_id')->where('skill_leader','=',$this->fix_id)->orderBy('draw_id')->get(); }
 }

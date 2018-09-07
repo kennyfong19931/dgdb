@@ -29,15 +29,15 @@ Route::post('api/translate/unit/{id}', 'TranslateController@unit');
 Route::post('api/translate/quest/{id}', 'TranslateController@quest');
 
 // API
-Route::get('api/area/{id}', 'ApiController@area');
-Route::get('api/quest/{id}', 'ApiController@quest');
-Route::get('api/questlist', 'ApiController@questlist');
-Route::get('api/rank', 'ApiController@rank');
-Route::get('api/skill/{type}', 'ApiController@skill');
-Route::get('api/story', 'ApiController@story');
-Route::get('api/unit/{id}', 'ApiController@unit');
-Route::get('api/unitlist', 'ApiController@unitlist');
-Route::get('api/voteresult/{id}', 'ApiController@voteResult');
+Route::get('api/area/{id}', 'ApiController@area')->middleware('cors');
+Route::get('api/quest/{id}', 'ApiController@quest')->middleware('cors');
+Route::get('api/questlist', 'ApiController@questlist')->middleware('cors');
+Route::get('api/rank', 'ApiController@rank')->middleware('cors');
+Route::get('api/skill/{type}', 'ApiController@skill')->middleware('cors');
+Route::get('api/story', 'ApiController@story')->middleware('cors');
+Route::get('api/unit/{id}', 'ApiController@unit')->middleware('cors');
+Route::get('api/unitlist', 'ApiController@unitlist')->middleware('cors');
+Route::get('api/voteresult/{id}', 'ApiController@voteResult')->middleware('cors');
 
 // update
 Route::get('update', function () { return view('update.index'); })->middleware('update');

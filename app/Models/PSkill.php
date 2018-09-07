@@ -82,5 +82,5 @@ class PSkill extends Model
     public function units(){return $this->hasMany('App\Models\Unit', 'skill_passive', 'fix_id')->get(); }
     public function linkUnits(){return $this->hasMany('App\Models\Unit', 'link_skill_passive', 'fix_id')->get(); }
     public function minUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('skill_passive','=',$this->fix_id)->orderBy('draw_id')->get(); }
-    public function minLinkUnits(){ return DB::table('unit')->select('fix_id','name','draw_id')->where('link_skill_passive','=',$this->fix_id)->orderBy('draw_id')->get(); }
+    public function minLinkUnits(){ return DB::table('unit')->select('name','draw_id')->where('link_skill_passive','=',$this->fix_id)->orderBy('draw_id')->get(); }
 }

@@ -776,7 +776,6 @@ class CacheUtil{
             $unitlist = Unit::where('fix_id','!=','0')->orderBy('draw_id')->get();
             foreach ($unitlist as $unit) {
                 $obj = [];
-                $obj['fix_id'] = $unit->fix_id;
                 $obj['name'] = $unit->name;
                 $obj['draw_id'] = $unit->draw_id;
                 $obj['series'] = $unit->series;
@@ -786,16 +785,24 @@ class CacheUtil{
                 $obj['image'] = $this->imageUtil->getIconLink($this->function->getTriId($unit->draw_id));
                 $data['unit'][] = $obj;
             }
-            $questlist = Quest::where('fix_id','!=','0')->orderBy('fix_id')->get();
-            foreach ($questlist as $quest) {
-                $obj = [];
-                $obj['fix_id'] = $quest->fix_id;
-                $obj['quest_name'] = $quest->quest_name;
-                $obj['story'] = $quest->story;
-                $translate = $quest->getTranslate();
-                $obj['storycn'] = !is_null($translate) ? $translate->text : "";
-                $obj['image'] = $this->imageUtil->getIconLink($this->function->getTriId($quest->boss()->draw_id));
-                $data['quest'][] = $obj;
+			$areaCate = AreaCategory::where('fix_id','!=','0')->orderBy('area_cate_type', 'asc')->orderBy('questlist_sort', 'asc')->get();
+            foreach($areaCate as $cate){
+                foreach($cate->getAreas() as $area){
+					$questlist = Quest::where('area_id','=',$area->fix_id)->get();
+					foreach ($questlist as $quest) {
+						$obj = [];
+						$obj['area_cate_id'] = $cate->fix_id;
+						$obj['area_cate_name'] = $cate->area_cate_name;
+						$obj['area_cate_type'] = $cate->area_cate_type;
+						$obj['quest_id'] = $quest->fix_id;
+						$obj['quest_name'] = $quest->quest_name;
+						$obj['story'] = $quest->story;
+						$translate = $quest->getTranslate();
+						$obj['storycn'] = !is_null($translate) ? $translate->text : "";
+						$obj['image'] = $this->imageUtil->getIconLink($this->function->getTriId($quest->boss()->draw_id));
+						$data['quest'][] = $obj;
+					}
+                }
             }
             // cache
             Cache::forever($key, $data);

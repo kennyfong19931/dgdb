@@ -48,7 +48,7 @@ class ApiController extends Controller
         foreach($data['quests'] as $quest){
             $obj = [];
             $obj['quest_id'] = $quest->fix_id;
-            $obj['quest_name'] = $q->quest_name;
+            $obj['quest_name'] = $quest->quest_name;
             $obj['quest_stamina'] = $quest->quest_stamina;
             $obj['quest_ticket'] = $quest->quest_ticket;
             $obj['quest_key'] = $quest->quest_key;
@@ -71,48 +71,52 @@ class ApiController extends Controller
         $output['quest_name'] = $data['quest']->quest_name;
 
         // quest_requirement
-        $output['quest_requirement']['battle_chain'] = $data['quest']->battle_chain == 2 ? true : false;
-        $output['quest_requirement']['enable_continue'] = $data['quest']->enable_continue == 1 ? false : true;
-        $output['quest_requirement']['elem_fire'] =  $data['quest_requirement_obj']->elem_fire == 2 ? true : false;
-        $output['quest_requirement']['elem_water'] =  $data['quest_requirement_obj']->elem_water == 2 ? true : false;
-        $output['quest_requirement']['elem_wind'] =  $data['quest_requirement_obj']->elem_wind == 2 ? true : false;
-        $output['quest_requirement']['elem_light'] =  $data['quest_requirement_obj']->elem_light == 2 ? true : false;
-        $output['quest_requirement']['elem_dark'] =  $data['quest_requirement_obj']->elem_dark == 2 ? true : false;
-        $output['quest_requirement']['elem_none'] =  $data['quest_requirement_obj']->elem_naught == 2 ? true : false;
-        $output['quest_requirement']['num_elem'] =  $data['quest_requirement_obj']->num_elem == 1 ? true : false;
-        $output['quest_requirement']['kind_human'] =  $data['quest_requirement_obj']->kind_human == 2 ? true : false;
-        $output['quest_requirement']['kind_fairy'] =  $data['quest_requirement_obj']->kind_fairy == 2 ? true : false;
-        $output['quest_requirement']['kind_demon'] =  $data['quest_requirement_obj']->kind_demon == 2 ? true : false;
-        $output['quest_requirement']['kind_dragon'] =  $data['quest_requirement_obj']->kind_dragon == 2 ? true : false;
-        $output['quest_requirement']['kind_machine'] =  $data['quest_requirement_obj']->kind_machine == 2 ? true : false;
-        $output['quest_requirement']['kind_beast'] =  $data['quest_requirement_obj']->kind_beast == 2 ? true : false;
-        $output['quest_requirement']['kind_god'] =  $data['quest_requirement_obj']->kind_god == 2 ? true : false;
-        $output['quest_requirement']['kind_egg'] =  $data['quest_requirement_obj']->kind_egg == 2 ? true : false;
-        $output['quest_requirement']['num_kind'] =  $data['quest_requirement_obj']->num_kind == 1 ? true : false;
-        $output['quest_requirement']['num_unit'] =  $data['quest_requirement_obj']->num_unit;
-        $output['quest_requirement']['much_name'] =  $data['quest_requirement_obj']->much_name;
-        $output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
-        $output['quest_requirement']['limit_cost_total'] =  $data['quest_requirement_obj']->limit_cost_total;
-        $output['quest_requirement']['limit_unit_lv'] =  $data['quest_requirement_obj']->limit_unit_lv;
-        $output['quest_requirement']['limit_unit_lv_total'] =  $data['quest_requirement_obj']->limit_unit_lv_total;
-        $output['quest_requirement']['limit_rank'] =  $data['quest_requirement_obj']->limit_rank;
-        $output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
-        for($i = 0; $i < 5; $i++){
-            if(isset($data['quest_requirement']['fix_team']['fix_unit'][$i])){
-                $output['quest_requirement']['fix_team']['fix_unit'][$i]['unit_id'] = $this->function->getUnitApiObj($data['quest_requirement']['fix_team']['fix_unit'][$i]['unit']);
-                $output['quest_requirement']['fix_team']['fix_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['lv'];
-                $output['quest_requirement']['fix_team']['fix_unit'][$i]['lbs_lv'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['lbs_lv'];
-                $output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'];
-                $output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'];
-            }
-            if(isset($data['quest_requirement']['fix_team']['link_unit'][$i])){
-                $output['quest_requirement']['fix_team']['link_unit'][$i]['unit_id'] = $this->function->getUnitApiObj($data['quest_requirement']['fix_team']['link_unit'][$i]['unit']);
-                $output['quest_requirement']['fix_team']['link_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['lv'];
-                $output['quest_requirement']['fix_team']['link_unit'][$i]['lbs_lv'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['lbs_lv'];
-                $output['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'];
-                $output['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'];
-            }
-        }
+		if($data['quest']->battle_chain == 2){
+			$output['quest_requirement']['battle_chain'] = true;
+		}
+		if($data['quest']->enable_continue == 1){
+			$output['quest_requirement']['enable_continue'] = false;
+		}
+		if(isset($data['quest_requirement_obj'])){
+			$output['quest_requirement']['elem_fire'] =  $data['quest_requirement_obj']->elem_fire == 2 ? true : false;
+			$output['quest_requirement']['elem_water'] =  $data['quest_requirement_obj']->elem_water == 2 ? true : false;
+			$output['quest_requirement']['elem_wind'] =  $data['quest_requirement_obj']->elem_wind == 2 ? true : false;
+			$output['quest_requirement']['elem_light'] =  $data['quest_requirement_obj']->elem_light == 2 ? true : false;
+			$output['quest_requirement']['elem_dark'] =  $data['quest_requirement_obj']->elem_dark == 2 ? true : false;
+			$output['quest_requirement']['elem_none'] =  $data['quest_requirement_obj']->elem_naught == 2 ? true : false;
+			$output['quest_requirement']['num_elem'] =  $data['quest_requirement_obj']->num_elem == 1 ? true : false;
+			$output['quest_requirement']['kind_human'] =  $data['quest_requirement_obj']->kind_human == 2 ? true : false;
+			$output['quest_requirement']['kind_fairy'] =  $data['quest_requirement_obj']->kind_fairy == 2 ? true : false;
+			$output['quest_requirement']['kind_demon'] =  $data['quest_requirement_obj']->kind_demon == 2 ? true : false;
+			$output['quest_requirement']['kind_dragon'] =  $data['quest_requirement_obj']->kind_dragon == 2 ? true : false;
+			$output['quest_requirement']['kind_machine'] =  $data['quest_requirement_obj']->kind_machine == 2 ? true : false;
+			$output['quest_requirement']['kind_beast'] =  $data['quest_requirement_obj']->kind_beast == 2 ? true : false;
+			$output['quest_requirement']['kind_god'] =  $data['quest_requirement_obj']->kind_god == 2 ? true : false;
+			$output['quest_requirement']['kind_egg'] =  $data['quest_requirement_obj']->kind_egg == 2 ? true : false;
+			$output['quest_requirement']['num_kind'] =  $data['quest_requirement_obj']->num_kind == 1 ? true : false;
+			$output['quest_requirement']['num_unit'] =  $data['quest_requirement_obj']->num_unit;
+			$output['quest_requirement']['much_name'] =  $data['quest_requirement_obj']->much_name;
+			$output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
+			$output['quest_requirement']['limit_cost_total'] =  $data['quest_requirement_obj']->limit_cost_total;
+			$output['quest_requirement']['limit_unit_lv'] =  $data['quest_requirement_obj']->limit_unit_lv;
+			$output['quest_requirement']['limit_unit_lv_total'] =  $data['quest_requirement_obj']->limit_unit_lv_total;
+			$output['quest_requirement']['limit_rank'] =  $data['quest_requirement_obj']->limit_rank;
+			$output['quest_requirement']['limit_cost'] =  $data['quest_requirement_obj']->limit_cost;
+			for($i = 0; $i < 5; $i++){
+				if(isset($data['quest_requirement']['fix_team']['fix_unit'][$i])){
+					$output['quest_requirement']['fix_team']['fix_unit'][$i]['unit'] = $this->function->getUnitApiObj($data['quest_requirement']['fix_team']['fix_unit'][$i]['unit']);
+					$output['quest_requirement']['fix_team']['fix_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['lv'];
+					$output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_hp'];
+					$output['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['fix_unit'][$i]['plus_atk'];
+				}
+				if(isset($data['quest_requirement']['fix_team']['link_unit'][$i])){
+					$output['quest_requirement']['fix_team']['link_unit'][$i]['unit'] = $this->function->getUnitApiObj($data['quest_requirement']['fix_team']['link_unit'][$i]['unit']);
+					$output['quest_requirement']['fix_team']['link_unit'][$i]['lv'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['lv'];
+					$output['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_hp'];
+					$output['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'] = $data['quest_requirement']['fix_team']['link_unit'][$i]['plus_atk'];
+				}
+			}
+		}
 
         // quest detail
         $output['story'] = $data['quest']->story;
@@ -233,7 +237,7 @@ class ApiController extends Controller
                             }
                             $temp['moves'][] = $move;
                         }
-                        $obj['act_table'.$i] = $temp;
+                        $obj['act_table'][] = $temp;
                     }
                 }
                 $output['boss'][] = $obj;
@@ -434,7 +438,9 @@ class ApiController extends Controller
         $output['image_large_size'] = $data['unit']->size;
         $output['image_icon'] = $this->imageUtil->getIconLink($this->function->getTriId($data['unit']->draw_id));
         $output['detail'] = $data['unit']->detail;
-        $output['detailcn'] = $data['detailcn'];
+		
+        if(isset($data['detailcn']))
+			$output['detailcn'] = $data['detailcn'];
         
         $output['rare'] = $data['unit']->rare;
         $output['rarity'] = $data['unit']->rarity;
@@ -553,7 +559,7 @@ class ApiController extends Controller
             $output['evoFrom']['part_pre'] = $this->function->getUnitApiObj($data['evoFrom']->partPre());
             for ($i = 1; $i < 5; $i++){
                 if($data['evoFrom']->part($i)->fix_id > 0){
-                    $output['evoFrom']['part'] = $this->function->getUnitApiObj($data['evoFrom']->part($i));
+                    $output['evoFrom']['part'][] = $this->function->getUnitApiObj($data['evoFrom']->part($i));
                 }
             }
             $output['evoFrom']['part_after'] = $this->function->getUnitApiObj($data['evoFrom']->partAfter());
@@ -561,8 +567,8 @@ class ApiController extends Controller
         if(!is_null($data['evoTo'])){
             $output['evoTo']['part_pre'] = $this->function->getUnitApiObj($data['evoTo']->partPre());
             for ($i = 1; $i < 5; $i++){
-                if($data['evoFrom']->part($i)->fix_id > 0){
-                    $output['evoTo']['part'] = $this->function->getUnitApiObj($data['evoFrom']->part($i));
+                if($data['evoTo']->part($i)->fix_id > 0){
+                    $output['evoTo']['part'][] = $this->function->getUnitApiObj($data['evoTo']->part($i));
                 }
             }
             $output['evoTo']['part_after'] = $this->function->getUnitApiObj($data['evoTo']->partAfter());
@@ -603,6 +609,8 @@ class ApiController extends Controller
                         $obj = [];
                         $obj['rank'] = $unit['rank'];
                         $obj['unit'] = $this->function->getUnitApiObj($unit['unit']);
+						$obj['type'] = $unit['type'];
+						$obj['change'] = $unit['change'];
                         $array[] = $obj;
                     }
                     $output[$c] = $array;
@@ -616,6 +624,8 @@ class ApiController extends Controller
                         $obj = [];
                         $obj['rank'] = $unit['rank'];
                         $obj['unit'] = $this->function->getUnitApiObj($unit['unit']);
+						$obj['type'] = $unit['type'];
+						$obj['change'] = $unit['change'];
                         $array[] = $obj;
                     }
                     $output[$c] = $array;
@@ -626,6 +636,8 @@ class ApiController extends Controller
                     $obj = [];
                     $obj['rank'] = $unit['rank'];
                     $obj['unit'] = $this->function->getUnitApiObj($unit['unit']);
+                    $obj['type'] = $unit['type'];
+                    $obj['change'] = $unit['change'];
                     $output[] = $obj;
                 }
                 break;

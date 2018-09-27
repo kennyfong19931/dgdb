@@ -218,9 +218,9 @@ Link被動技能一覽表 - Divine Gate 資料庫
     </div>
     @if($type == "n" || $type == "ln")
     <div class="col s12 l10 white-text right">
-        @if($type == "p")
+        @if($type == "n")
             <h2>普通技能 <small>Normal Skill</small></h2>
-        @elseif($type == "lp")
+        @elseif($type == "ln")
             <h2>Link普通技能 <small>Link Normal Skill</small></h2>
         @endif
         <h4 id="1" class="section scrollspy">單體攻擊</h4>

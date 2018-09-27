@@ -136,7 +136,7 @@ Unit 列表 - Divine Gate 資料庫
                     <button type="button" class="btn unitlist waves-effect waves-light white black-text" data-filter=".subkind8">強化合成</button>
             </div></div>
             <div class="col s2 m1 white-text">Link</div>
-                <div class="col s10 m11"><div class="btn-group js-radio-button-group" data-filter-group="subkind">
+                <div class="col s10 m11"><div class="btn-group js-radio-button-group" data-filter-group="hvlink">
                     <button type="button" class="btn unitlist waves-effect waves-light white black-text active" data-filter="">全</button>
                     <button type="button" class="btn unitlist waves-effect waves-light white black-text" data-filter=".hvlink">可Link</button>
             </div></div>

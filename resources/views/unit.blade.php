@@ -477,7 +477,7 @@ $( "#translateFormSubmit" ).click(function() {
                             <div class="col s6 m2 l3">可突破次數</div><div class="col s6 m2 l1">{{$limit_over_max}}</div>
                             <div class="col s6 m4 l4">突破所需unit point: <img src="{{URL::asset('/img/icon/unit_point.png')}}" style="width:15px;height:15px;" alt="Unit Point">{{$unit->limit_over_unitpoint}}</div>
                             <div class="col s12 m4 l4">售出可獲unit point: </div>
-                            <div class="cols12"></div>
+                            <div class="col s12"></div>
                             <div class="col s6 m2 l3">突破Bonus<div class="hide-on-med-and-down">Lv. <input id="limitOverLv" type="number" min="1" max="{{$limit_over_max}}" value="1"></div></div>
                             <div class="col s6 m2 hide-on-large-only">Lv. <input id="limitOverLv2" type="number" min="1" max="{{$limit_over_max}}" value="1"></div>
                             <div class="col s6 m2 l3">HP: HPx<span id="limitOverHp"></span>%</div>
@@ -540,7 +540,7 @@ $( "#translateFormSubmit" ).click(function() {
                             &nbsp<i class="fa fa-arrow-right fa-2x evo-icon" aria-hidden="true"></i>&nbsp<?=$imageUtil->getIcon(1, $evoTo->partAfter(), 50)?>
                             </div>
                             <div class="divider"></div>
-                            <div class="section">朋友等級: Lv.{{$evoTo->friend_level}}或以上&nbsp&nbsp&nbsp&nbsp屬性: {{$function->getKind($evoTo->friend_kind)}}&nbsp&nbsp&nbsp&nbsp種族: <?=$imageUtil->getElement($evoTo->friend_elem, 18)?>&nbsp&nbsp&nbsp&nbsp進化關卡: <a href="{{action('PagesController@quest', $evoTo->quest()->fix_id)}}">{{$evoTo->quest()->quest_name}}</a>
+                            <div class="section">朋友等級: Lv.{{$evoTo->friend_level}}或以上&nbsp&nbsp&nbsp&nbsp種族: {{$function->getKind($evoTo->friend_kind)}}&nbsp&nbsp&nbsp&nbsp屬性: <?=$imageUtil->getElement($evoTo->friend_elem, 18)?>&nbsp&nbsp&nbsp&nbsp進化關卡: <a href="{{action('PagesController@quest', $evoTo->quest()->fix_id)}}">{{$evoTo->quest()->quest_name}}</a>
                             @if ($evol_unitpoint > 0)
                                 <br/>可使用 <img src="{{URL::asset('/img/icon/unit_point.png')}}" style="width:15px;height:15px;" alt="Unit Point">{{$evol_unitpoint}}Unit point進化
                             @endif
